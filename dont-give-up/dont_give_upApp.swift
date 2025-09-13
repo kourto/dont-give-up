@@ -1,6 +1,6 @@
 //
-//  dont_give_upApp.swift
-//  dont-give-up
+//
+//
 //
 //  Created by Yves Courteau on 2025-09-13.
 //
@@ -12,7 +12,8 @@ import SwiftData
 struct dont_give_upApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            WeightEntry.self,
+            ThemePreference.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

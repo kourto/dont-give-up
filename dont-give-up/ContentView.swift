@@ -1,6 +1,6 @@
 //
-//  ContentView.swift
-//  dont-give-up
+//
+//
 //
 //  Created by Yves Courteau on 2025-09-13.
 //
@@ -10,46 +10,62 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query private var themePrefs: [ThemePreference]
+
+    @State private var isDarkMode = false
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        NavigationStack {
+            TabView {
+                EntriesView(isDarkMode: isDarkMode)
+                    .tabItem {
+                        Image(systemName: "list.bullet")
+                        Text("Entries")
                     }
-                }
-                .onDelete(perform: deleteItems)
+
+                WeightChartView(isDarkMode: isDarkMode)
+                    .padding(.top, 8)
+                    .tabItem {
+                        Image(systemName: "chart.xyaxis.line")
+                        Text("Chart")
+                    }
+
+                StatsView(isDarkMode: isDarkMode)
+                    .tabItem {
+                        Image(systemName: "chart.bar")
+                        Text("Stats")
+                    }
             }
+            .navigationTitle("Dont give up!")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        withAnimation {
+                            isDarkMode.toggle()
+                            if let pref = themePrefs.first {
+                                pref.isDarkMode = isDarkMode
+                            } else {
+                                let pref = ThemePreference(isDarkMode: isDarkMode)
+                                modelContext.insert(pref)
+                            }
+                        }
+                    }) {
+                        Image(systemName: isDarkMode ? "sun.max.fill" : "moon.fill")
                     }
+                    .accessibilityLabel("Toggle theme")
                 }
             }
-        } detail: {
-            Text("Select an item")
         }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+        .tint(isDarkMode ? .white : .black)
+        .preferredColorScheme(isDarkMode ? .dark : .light)
+        .onAppear {
+            if let pref = themePrefs.first {
+                isDarkMode = pref.isDarkMode
+            } else {
+                let pref = ThemePreference(isDarkMode: false)
+                modelContext.insert(pref)
+                isDarkMode = pref.isDarkMode
             }
         }
     }
@@ -57,5 +73,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: WeightEntry.self, inMemory: true)
 }
