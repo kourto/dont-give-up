@@ -1,1 +1,3 @@
-### Minimalistic iOS app to track my weight loss
+# Don't give up!
+### A minimalistic iOS app to keep track of my weight loss...
+
