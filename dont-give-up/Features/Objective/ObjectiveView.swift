@@ -19,28 +19,31 @@ struct ObjectiveView: View {
 
     var body: some View {
         List {
-            ForEach(objectives) { obj in
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(String(format: "%.1f lb", obj.weight))
-                            .font(.system(size: 16, weight: .regular))
-                        Spacer()
-                        Text(reachedText(for: obj))
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundStyle(.secondary)
-                    }
-                    HStack {
-                        Text("Added: \(formattedDate(obj.createdAt))")
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                    }
+            if objectives.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "target")
+                        .font(.system(size: 28, weight: .regular))
+                        .foregroundStyle(isDarkMode ? .white : .black)
+                    Text("No objectives yet")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("Tap + to add a target weight")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.secondary)
                 }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(accessibilityLabel(for: obj))
+                .frame(maxWidth: .infinity)
+                .listRowBackground(Color.clear)
+            }
+            ForEach(objectives) { obj in
+                ObjectiveRow(obj: obj, isDarkMode: isDarkMode)
+                    .listRowBackground(Color.clear)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(accessibilityLabel(for: obj))
             }
             .onDelete(perform: deleteObjectives)
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(isDarkMode ? Color.black : Color.white)
         .overlay(alignment: .bottomTrailing) {
             Button(action: { showAddSheet = true }) {
                 Image(systemName: "plus")
@@ -143,5 +146,49 @@ struct ObjectiveView: View {
         } else {
             return "Objective: \(obj.weight) pounds, added on \(formattedDate(obj.createdAt)), still not reached"
         }
+    }
+}
+
+private struct ObjectiveRow: View {
+    let obj: Objective
+    let isDarkMode: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(String(format: "%.1f lb", obj.weight))
+                    .font(.system(size: 16, weight: .semibold))
+                Spacer()
+                Text(reachedText)
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(.secondary)
+            }
+            HStack {
+                Text("Added: \(formattedDate(obj.createdAt))")
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isDarkMode ? Color.white : Color.black, lineWidth: 1)
+        )
+    }
+
+    private var reachedText: String {
+        if let d = obj.reachedAt {
+            return "Reached: \(formattedDate(d))"
+        } else {
+            return "Still not reached"
+        }
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let df = DateFormatter()
+        df.dateStyle = .medium
+        return df.string(from: date)
     }
 }

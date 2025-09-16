@@ -14,25 +14,36 @@ struct WeightChartView: View {
     var isDarkMode: Bool = false
 
     var body: some View {
-        Chart {
-            ForEach(entries) { entry in
-                LineMark(
-                    x: .value("Date", entry.date),
-                    y: .value("Weight (lb)", entry.weight)
-                )
-                .foregroundStyle(isDarkMode ? .white : .black)
-                PointMark(
-                    x: .value("Date", entry.date),
-                    y: .value("Weight (lb)", entry.weight)
-                )
-                .foregroundStyle(isDarkMode ? .white : .black)
+        VStack(alignment: .leading, spacing: 12) {
+            Chart {
+                ForEach(entries) { entry in
+                    LineMark(
+                        x: .value("Date", entry.date),
+                        y: .value("Weight (lb)", entry.weight)
+                    )
+                    .foregroundStyle(isDarkMode ? .white : .black)
+                    PointMark(
+                        x: .value("Date", entry.date),
+                        y: .value("Weight (lb)", entry.weight)
+                    )
+                    .foregroundStyle(isDarkMode ? .white : .black)
+                }
             }
-        }
-        .chartYScale(domain: inferredYDomain())
-        .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5))
+            .chartYScale(domain: inferredYDomain())
+            .chartXAxis {
+                AxisMarks(values: .automatic(desiredCount: 5))
+            }
+            .chartPlotStyle { plot in
+                plot.background(Color.clear)
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isDarkMode ? Color.white : Color.black, lineWidth: 1)
+            )
         }
         .padding()
+        .background(isDarkMode ? Color.black : Color.white)
     }
 
     private func inferredYDomain() -> ClosedRange<Double> {

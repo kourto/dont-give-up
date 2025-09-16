@@ -27,18 +27,49 @@ struct EntriesView: View {
     
     var body: some View {
         List {
-            ForEach(entries) { entry in
-                HStack {
-                    Text(entry.date, style: .date)
-                    Spacer()
-                    Text(String(format: "%.1f lb", entry.weight))
+            if entries.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "list.bullet")
+                        .font(.system(size: 28, weight: .regular))
+                        .foregroundStyle(isDarkMode ? .white : .black)
+                    Text("No entries yet")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("Tap + to add your first weight entry")
+                        .font(.system(size: 14))
                         .foregroundStyle(.secondary)
                 }
+                .frame(maxWidth: .infinity)
+                .listRowBackground(Color.clear)
+            }
+            ForEach(entries) { entry in
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(entry.date, style: .date)
+                            .font(.system(size: 16, weight: .semibold))
+                        Text(formattedDate(entry.date))
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                            .opacity(0.0)
+                    }
+                    Spacer()
+                    Text(String(format: "%.1f lb", entry.weight))
+                        .font(.system(size: 16, weight: .regular))
+                }
+                .padding(.vertical, 10)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isDarkMode ? Color.white : Color.black, lineWidth: 1)
+                )
+                .listRowBackground(Color.clear)
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("\(formattedDate(entry.date)), \(entry.weight) pounds")
             }
             .onDelete(perform: deleteEntries)
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(isDarkMode ? Color.black : Color.white)
         .overlay(alignment: .bottomTrailing) {
             Button(action: { showAddSheet = true }) {
                 Image(systemName: "plus")

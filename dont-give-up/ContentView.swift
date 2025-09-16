@@ -54,6 +54,17 @@ struct ContentView: View {
         return String(format: "%.0f%%", clamped)
     }
 
+    #if canImport(UIKit)
+    private func applyTabBarAppearance() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithDefaultBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        appearance.backgroundColor = .clear
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+    #endif
+
     var body: some View {
         NavigationStack {
             TabView(selection: $selectedTab) {
@@ -86,6 +97,8 @@ struct ContentView: View {
                     }
                     .tag(3)
             }
+            .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+            .toolbarBackgroundVisibility(.visible, for: .tabBar)
             .navigationTitle("Dont give up!")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
@@ -135,6 +148,10 @@ struct ContentView: View {
                 modelContext.insert(pref)
                 isDarkMode = pref.isDarkMode
             }
+            applyTabBarAppearance()
+        }
+        .onChange(of: isDarkMode) { _ in
+            applyTabBarAppearance()
         }
     }
 }
