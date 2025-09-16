@@ -25,7 +25,6 @@ struct ContentView: View {
             return nil
         }
 
-        // Choose the highest-weight objective, preferring those not yet reached
         let highestPending = objectives.first(where: { $0.reachedAt == nil })
         let highestAny = objectives.first
         guard let target = highestPending ?? highestAny else {
@@ -36,21 +35,17 @@ struct ContentView: View {
         let current = latest.weight
         let goal = target.weight
 
-        // Avoid division by zero and compute progress toward goal using start/current/goal
-        // If goal equals start, treat progress as completed when current meets or surpasses goal in the proper direction.
         let pct: Double
         if start == goal {
-            if start > goal { // unreachable because equal, but keep structure
+            if start > goal {
                 pct = current <= goal ? 100 : 0
             } else {
                 pct = current >= goal ? 100 : 0
             }
         } else if start > goal {
-            // Weight-loss toward a lower goal
             let totalDelta = max(0.0001, start - goal)
             pct = ((start - current) / totalDelta) * 100.0
         } else {
-            // Weight-gain toward a higher goal (edge case, supported generically)
             let totalDelta = max(0.0001, goal - start)
             pct = ((current - start) / totalDelta) * 100.0
         }

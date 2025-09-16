@@ -83,17 +83,14 @@ struct EntriesView: View {
 
     private func deleteEntries(offsets: IndexSet) {
         withAnimation {
-            // Delete selected entries
             for index in offsets {
                 modelContext.delete(entries[index])
             }
-            // After deletions, recompute objectives' reachedAt based on remaining entries
             recomputeObjectivesReached()
         }
     }
 
     private func recomputeObjectivesReached() {
-        // Fetch all remaining entries to ensure we compute from current state
         let descriptor = FetchDescriptor<WeightEntry>()
         let allEntries = (try? modelContext.fetch(descriptor)) ?? []
 
@@ -105,7 +102,6 @@ struct EntriesView: View {
                 .min() {
                 obj.reachedAt = earliestDate
             } else {
-                // No entry meets the objective anymore; reset
                 obj.reachedAt = nil
             }
         }
