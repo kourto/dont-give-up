@@ -78,17 +78,23 @@ struct StatsView: View {
     private func statRow(title: String, value: String) -> some View {
         HStack {
             Text(title)
-                .font(.system(size: 16, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
             Spacer()
             Text(value)
-                .font(.system(size: 16, weight: .regular))
+                .font(.system(size: 16, weight: .regular, design: .rounded))
         }
         .foregroundStyle(isDarkMode ? .white : .black)
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isDarkMode ? Color.white : Color.black, lineWidth: 1.5)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(colors: isDarkMode ? [Color.white.opacity(0.06), Color.white.opacity(0.02)] : [Color.black.opacity(0.04), Color.black.opacity(0.01)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(isDarkMode ? Color.white.opacity(0.6) : Color.black.opacity(0.6), lineWidth: 1)
+                )
         )
     }
 

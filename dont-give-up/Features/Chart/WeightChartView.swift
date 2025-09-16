@@ -21,6 +21,7 @@ struct WeightChartView: View {
                         x: .value("Date", entry.date),
                         y: .value("Weight (lb)", entry.weight)
                     )
+                    .interpolationMethod(.catmullRom)
                     .foregroundStyle(isDarkMode ? .white : .black)
                     PointMark(
                         x: .value("Date", entry.date),
@@ -38,8 +39,14 @@ struct WeightChartView: View {
             }
             .padding(12)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isDarkMode ? Color.white : Color.black, lineWidth: 1)
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(
+                        LinearGradient(colors: isDarkMode ? [Color.white.opacity(0.06), Color.white.opacity(0.02)] : [Color.black.opacity(0.04), Color.black.opacity(0.01)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(isDarkMode ? Color.white.opacity(0.6) : Color.black.opacity(0.6), lineWidth: 1)
+                    )
             )
         }
         .padding()

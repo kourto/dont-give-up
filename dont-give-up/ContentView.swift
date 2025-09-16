@@ -97,9 +97,10 @@ struct ContentView: View {
                     }
                     .tag(3)
             }
+            .animation(.spring(response: 0.45, dampingFraction: 0.85), value: selectedTab)
             .toolbarBackground(.ultraThinMaterial, for: .tabBar)
             .toolbarBackgroundVisibility(.visible, for: .tabBar)
-            .navigationTitle("Dont give up!")
+            .navigationTitle("Don't Give Up")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
             .toolbarBackgroundVisibility(.visible, for: .navigationBar)
@@ -123,14 +124,23 @@ struct ContentView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if let text = progressPercentText {
                         Button(action: { selectedTab = 3 }) {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 8) {
                                 Image(systemName: "target")
                                     .imageScale(.medium)
-                                    .foregroundStyle(isDarkMode ? Color.white : Color.black)
                                 Text(text)
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundStyle(isDarkMode ? Color.white : Color.black)
+                                    .font(.system(size: 15, weight: .bold, design: .rounded))
                             }
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 10)
+                            .background(
+                                Capsule().fill(
+                                    (isDarkMode ? Color.white.opacity(0.12) : Color.black.opacity(0.08))
+                                )
+                            )
+                            .overlay(
+                                Capsule().stroke(isDarkMode ? Color.white : Color.black, lineWidth: 1)
+                            )
+                            .foregroundStyle(isDarkMode ? Color.white : Color.black)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Open Objectives. Goal progress: \(text)")
@@ -152,6 +162,11 @@ struct ContentView: View {
         }
         .onChange(of: isDarkMode) { _ in
             applyTabBarAppearance()
+        }
+        .onChange(of: selectedTab) { _ in
+            #if canImport(UIKit)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
         }
     }
 }
