@@ -14,20 +14,45 @@ struct WeightChartView: View {
     var isDarkMode: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: 0) {
             Chart {
+                // Smooth line across all entries
                 ForEach(entries) { entry in
                     LineMark(
                         x: .value("Date", entry.date),
                         y: .value("Weight (lb)", entry.weight)
                     )
                     .interpolationMethod(.catmullRom)
+                    .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                     .foregroundStyle(isDarkMode ? .white : .black)
+                }
+
+                // Only show points (dots) for the first and last entries, with labels
+                if let first = entries.first {
                     PointMark(
-                        x: .value("Date", entry.date),
-                        y: .value("Weight (lb)", entry.weight)
+                        x: .value("Date", first.date),
+                        y: .value("Weight (lb)", first.weight)
                     )
+                    .symbolSize(60)
                     .foregroundStyle(isDarkMode ? .white : .black)
+                    .annotation(position: .top) {
+                        Text(String(format: "%.1f lb", first.weight))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(isDarkMode ? .white : .black)
+                    }
+                }
+                if entries.count > 1, let last = entries.last {
+                    PointMark(
+                        x: .value("Date", last.date),
+                        y: .value("Weight (lb)", last.weight)
+                    )
+                    .symbolSize(60)
+                    .foregroundStyle(isDarkMode ? .white : .black)
+                    .annotation(position: .top) {
+                        Text(String(format: "%.1f lb", last.weight))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(isDarkMode ? .white : .black)
+                    }
                 }
             }
             .chartYScale(domain: inferredYDomain())
@@ -37,19 +62,10 @@ struct WeightChartView: View {
             .chartPlotStyle { plot in
                 plot.background(Color.clear)
             }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(
-                        LinearGradient(colors: isDarkMode ? [Color.white.opacity(0.06), Color.white.opacity(0.02)] : [Color.black.opacity(0.04), Color.black.opacity(0.01)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(isDarkMode ? Color.white.opacity(0.6) : Color.black.opacity(0.6), lineWidth: 1)
-                    )
-            )
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 0)
+            .padding(.vertical, 8)
         }
-        .padding()
         .background(isDarkMode ? Color.black : Color.white)
     }
 

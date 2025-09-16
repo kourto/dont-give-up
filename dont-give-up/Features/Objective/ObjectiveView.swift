@@ -90,10 +90,6 @@ struct ObjectiveView: View {
                             .fill(
                                 LinearGradient(colors: isDarkMode ? [Color.white.opacity(0.06), Color.white.opacity(0.02)] : [Color.black.opacity(0.04), Color.black.opacity(0.01)], startPoint: .topLeading, endPoint: .bottomTrailing)
                             )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(isDarkMode ? Color.white.opacity(0.6) : Color.black.opacity(0.6), lineWidth: 1)
-                            )
                     )
                     .foregroundStyle(isDarkMode ? .white : .black)
             }
@@ -185,10 +181,6 @@ private struct ObjectiveRow: View {
             RoundedRectangle(cornerRadius: 14)
                 .fill(
                     LinearGradient(colors: isDarkMode ? [Color.white.opacity(0.06), Color.white.opacity(0.02)] : [Color.black.opacity(0.04), Color.black.opacity(0.01)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(isDarkMode ? Color.white.opacity(0.6) : Color.black.opacity(0.6), lineWidth: 1)
                 )
         )
     }

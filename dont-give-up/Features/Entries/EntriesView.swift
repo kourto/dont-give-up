@@ -42,23 +42,18 @@ struct EntriesView: View {
                 .listRowBackground(Color.clear)
             }
             ForEach(entries) { entry in
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(entry.date, style: .date)
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        Text(formattedDate(entry.date))
-                            .font(.system(size: 12, weight: .regular, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .opacity(0.0)
-                    }
+                HStack(alignment: .firstTextBaseline) {
+                    Text(formattedDate(entry.date))
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .lineLimit(1)
                     Spacer()
                     Text(String(format: "%.1f lb", entry.weight))
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 12)
+                .padding(.vertical, 2)
+                .padding(.horizontal, 10)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 11)
                         .fill(
                             LinearGradient(colors: isDarkMode ? [Color.white.opacity(0.05), Color.white.opacity(0.01)] : [Color.black.opacity(0.035), Color.black.opacity(0.005)], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
@@ -70,6 +65,7 @@ struct EntriesView: View {
             .onDelete(perform: deleteEntries)
         }
         .listStyle(.plain)
+        .listRowSpacing(2)
         .listRowSeparator(.hidden)
         .scrollContentBackground(.hidden)
         .background(isDarkMode ? Color.black : Color.white)
