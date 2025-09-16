@@ -33,9 +33,9 @@ struct EntriesView: View {
                         .font(.system(size: 28, weight: .regular))
                         .foregroundStyle(isDarkMode ? .white : .black)
                     Text("No entries yet")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
                     Text("Tap + to add your first weight entry")
-                        .font(.system(size: 14))
+                        .font(.system(size: 14, weight: .regular, design: .rounded))
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -45,21 +45,23 @@ struct EntriesView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(entry.date, style: .date)
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
                         Text(formattedDate(entry.date))
-                            .font(.system(size: 12))
+                            .font(.system(size: 12, weight: .regular, design: .rounded))
                             .foregroundStyle(.secondary)
                             .opacity(0.0)
                     }
                     Spacer()
                     Text(String(format: "%.1f lb", entry.weight))
-                        .font(.system(size: 16, weight: .regular))
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
                 }
-                .padding(.vertical, 10)
+                .padding(.vertical, 8)
                 .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(isDarkMode ? Color.white : Color.black, lineWidth: 1)
+                        .fill(
+                            LinearGradient(colors: isDarkMode ? [Color.white.opacity(0.05), Color.white.opacity(0.01)] : [Color.black.opacity(0.035), Color.black.opacity(0.005)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
                 )
                 .listRowBackground(Color.clear)
                 .accessibilityElement(children: .ignore)
@@ -68,6 +70,7 @@ struct EntriesView: View {
             .onDelete(perform: deleteEntries)
         }
         .listStyle(.plain)
+        .listRowSeparator(.hidden)
         .scrollContentBackground(.hidden)
         .background(isDarkMode ? Color.black : Color.white)
         .overlay(alignment: .bottomTrailing) {
@@ -77,11 +80,14 @@ struct EntriesView: View {
             }
             .accessibilityLabel("Add weight entry")
             .frame(width: 56, height: 56)
-            .background(isDarkMode ? Color.white : Color.black)
+            .background(
+                Circle().fill(
+                    LinearGradient(colors: isDarkMode ? [Color.white, Color.white.opacity(0.85)] : [Color.black, Color.black.opacity(0.85)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+            )
             .foregroundColor(isDarkMode ? .black : .white)
-            .clipShape(Circle())
             .overlay(Circle().stroke(isDarkMode ? Color.black : Color.white, lineWidth: 2))
-            .shadow(color: (isDarkMode ? Color.white.opacity(0.0) : Color.black.opacity(0.2)), radius: 6, x: 0, y: 3)
+            .shadow(color: (isDarkMode ? Color.white.opacity(0.0) : Color.black.opacity(0.25)), radius: 10, x: 0, y: 6)
             .padding(.trailing, 16)
             .padding(.bottom, 32)
         }
