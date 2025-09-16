@@ -76,7 +76,6 @@ struct ContentView: View {
                     .tag(0)
 
                 WeightChartView(isDarkMode: isDarkMode)
-                    .padding(.top, 8)
                     .tabItem {
                         Image(systemName: "chart.xyaxis.line")
                         Text("Chart")
@@ -136,9 +135,6 @@ struct ContentView: View {
                                 Capsule().fill(
                                     (isDarkMode ? Color.white.opacity(0.12) : Color.black.opacity(0.08))
                                 )
-                            )
-                            .overlay(
-                                Capsule().stroke(isDarkMode ? Color.white : Color.black, lineWidth: 1)
                             )
                             .foregroundStyle(isDarkMode ? Color.white : Color.black)
                         }
