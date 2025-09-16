@@ -12,6 +12,7 @@ import SwiftData
 struct EntriesView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \WeightEntry.date, order: .reverse) private var entries: [WeightEntry]
+    @Query private var objectives: [Objective]
     
     // Local UI state
     @State private var showAddSheet = false
@@ -68,6 +69,12 @@ struct EntriesView: View {
         withAnimation {
             let entry = WeightEntry(date: newDate, weight: weight)
             modelContext.insert(entry)
+            // Mark objectives as reached if this weight is below or equal to their target
+            for obj in objectives {
+                if obj.reachedAt == nil && weight <= obj.weight {
+                    obj.reachedAt = entry.date
+                }
+            }
             weightText = ""
             newDate = Date()
             showAddSheet = false
@@ -76,8 +83,30 @@ struct EntriesView: View {
 
     private func deleteEntries(offsets: IndexSet) {
         withAnimation {
+            // Delete selected entries
             for index in offsets {
                 modelContext.delete(entries[index])
+            }
+            // After deletions, recompute objectives' reachedAt based on remaining entries
+            recomputeObjectivesReached()
+        }
+    }
+
+    private func recomputeObjectivesReached() {
+        // Fetch all remaining entries to ensure we compute from current state
+        let descriptor = FetchDescriptor<WeightEntry>()
+        let allEntries = (try? modelContext.fetch(descriptor)) ?? []
+
+        for obj in objectives {
+            // For weight-loss goals, an objective is reached when any entry is <= target weight
+            if let earliestDate = allEntries
+                .filter({ $0.weight <= obj.weight })
+                .map({ $0.date })
+                .min() {
+                obj.reachedAt = earliestDate
+            } else {
+                // No entry meets the objective anymore; reset
+                obj.reachedAt = nil
             }
         }
     }

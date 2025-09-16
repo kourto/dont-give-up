@@ -11,17 +11,63 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var themePrefs: [ThemePreference]
+    @Query(sort: \WeightEntry.date, order: .reverse) private var latestEntries: [WeightEntry]
+    @Query(sort: \Objective.weight, order: .reverse) private var objectives: [Objective]
 
     @State private var isDarkMode = false
+    @State private var selectedTab: Int = 0
+
+    init() {}
+
+    private var progressPercentText: String? {
+        guard let latest = latestEntries.first,
+              let oldest = latestEntries.last else {
+            return nil
+        }
+
+        // Choose the highest-weight objective, preferring those not yet reached
+        let highestPending = objectives.first(where: { $0.reachedAt == nil })
+        let highestAny = objectives.first
+        guard let target = highestPending ?? highestAny else {
+            return nil
+        }
+
+        let start = oldest.weight
+        let current = latest.weight
+        let goal = target.weight
+
+        // Avoid division by zero and compute progress toward goal using start/current/goal
+        // If goal equals start, treat progress as completed when current meets or surpasses goal in the proper direction.
+        let pct: Double
+        if start == goal {
+            if start > goal { // unreachable because equal, but keep structure
+                pct = current <= goal ? 100 : 0
+            } else {
+                pct = current >= goal ? 100 : 0
+            }
+        } else if start > goal {
+            // Weight-loss toward a lower goal
+            let totalDelta = max(0.0001, start - goal)
+            pct = ((start - current) / totalDelta) * 100.0
+        } else {
+            // Weight-gain toward a higher goal (edge case, supported generically)
+            let totalDelta = max(0.0001, goal - start)
+            pct = ((current - start) / totalDelta) * 100.0
+        }
+
+        let clamped = max(0.0, min(pct, 100.0))
+        return String(format: "%.0f%%", clamped)
+    }
 
     var body: some View {
         NavigationStack {
-            TabView {
+            TabView(selection: $selectedTab) {
                 EntriesView(isDarkMode: isDarkMode)
                     .tabItem {
                         Image(systemName: "list.bullet")
                         Text("Entries")
                     }
+                    .tag(0)
 
                 WeightChartView(isDarkMode: isDarkMode)
                     .padding(.top, 8)
@@ -29,15 +75,26 @@ struct ContentView: View {
                         Image(systemName: "chart.xyaxis.line")
                         Text("Chart")
                     }
+                    .tag(1)
 
                 StatsView(isDarkMode: isDarkMode)
                     .tabItem {
                         Image(systemName: "chart.bar")
                         Text("Stats")
                     }
+                    .tag(2)
+
+                ObjectiveView(isDarkMode: isDarkMode)
+                    .tabItem {
+                        Image(systemName: "target")
+                        Text("Objective")
+                    }
+                    .tag(3)
             }
             .navigationTitle("Dont give up!")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackgroundVisibility(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
@@ -54,6 +111,22 @@ struct ContentView: View {
                         Image(systemName: isDarkMode ? "sun.max.fill" : "moon.fill")
                     }
                     .accessibilityLabel("Toggle theme")
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if let text = progressPercentText {
+                        Button(action: { selectedTab = 3 }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "target")
+                                    .imageScale(.medium)
+                                    .foregroundStyle(isDarkMode ? Color.white : Color.black)
+                                Text(text)
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundStyle(isDarkMode ? Color.white : Color.black)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Open Objectives. Goal progress: \(text)")
+                    }
                 }
             }
         }
@@ -73,5 +146,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: WeightEntry.self, inMemory: true)
+        .modelContainer(for: [WeightEntry.self, ThemePreference.self, Objective.self], inMemory: true)
 }

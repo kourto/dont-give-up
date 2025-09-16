@@ -14,6 +14,7 @@ struct dont_give_upApp: App {
         let schema = Schema([
             WeightEntry.self,
             ThemePreference.self,
+            Objective.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
